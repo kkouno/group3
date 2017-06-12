@@ -24,6 +24,7 @@
  <th>名前</th>
  <th>コメント</th>
  <th>日付</th>
+ <th></th>
  </tr>
  <?php foreach ($article->comments as $comment): ?>
  <tr>
@@ -31,6 +32,14 @@
 </td>
  <td><?= $comment->body ?></td>
  <td><?= $comment->created->format(DATE_RFC850) ?></td>
+ <td>
+     <?=
+         $this->Form->postLink(
+         'Delete',
+         ['action' => 'commentDelete', $comment->id],
+         ['confirm' => 'Are you sure?'])
+     ?>
+ </td>
  </tr>
  <?php endforeach; ?>
 </table>

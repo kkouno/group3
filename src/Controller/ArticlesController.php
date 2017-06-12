@@ -15,7 +15,7 @@ class ArticlesController extends AppController
         parent::initialize();
 
         $this->loadComponent('Flash'); // Include the FlashComponent
-        $this->Auth->allow(['index','view']);
+        $this->Auth->allow(['index','view','commentDelete','comment']);
     }
 
     public function index()
@@ -92,13 +92,23 @@ class ArticlesController extends AppController
     public function delete($id)
     {
         $this->request->allowMethod(['post', 'delete']);
-
         $article = $this->Articles->get($id);
         if ($this->Articles->delete($article)) {
             $this->Flash->success(__('The article with id: {0} has been deleted.', h($id)));
             return $this->redirect(['action' => 'index']);
         }
     }
+    //コメントの削除
+    public function commentDelete($comment_id)
+    {
+        $this->request->allowMethod(['post', 'commentDelete']);
+        $comment = $this->Articles->comments->get($comment_id);
+        if($this->Articles->comments->delete($comment)){
+            $this->Flash->success(__('The comment with id: {0} has been deleted.', h($comment_id)));
+            return $this->redirect(['action' => 'index']);
+        }
+    }
+
     //コメントの機能の追加
     public function comment(){
         $this->loadModel('Comments');
