@@ -15,12 +15,12 @@ class ArticlesController extends AppController
         parent::initialize();
 
         $this->loadComponent('Flash'); // Include the FlashComponent
-        $this->Auth->allow(['index','view','commentDelete','comment']);
+        $this->Auth->allow(['index','view']);
     }
 
     public function index()
     {
-        $this->set('articles', $this->Articles->find('all'));
+        $this->set('articles', $this->Articles->find('all')-> contain(['Comments']));
     }
 
     public function view($id = null)
@@ -30,14 +30,14 @@ class ArticlesController extends AppController
         }
         //コメント機能追加のため書き換え
         //$article = $this->Articles->get($id);
-        $article = $this -> Articles -> find('all')-> contain(['Comments'])
+        $article = $this ->Articles -> find('all')-> contain(['Comments'])
         ->where(['id'=>$id])->first();
 
         $this->set(compact('article'));
 
-        $this ->loadModel('Comments');//Modelの中にあるCommentsにアクセス
-        $comment_entity = $this ->Comments ->newEntity($this ->request ->data);//＄comment_entityをnewEntityに継承
-        $this ->set('comment_entity', $comment_entity);
+        // $this ->loadModel('Comments');//Modelの中にあるCommentsにアクセス
+        // $comment_entity = $this ->Comments ->newEntity($this ->request ->data);//＄comment_entityをnewEntityに継承
+        // $this ->set('comment_entity', $comment_entity);
     }
 
     public function add()
@@ -65,7 +65,8 @@ class ArticlesController extends AppController
             $article = $this->Articles->patchEntity($article, $this->request->getData());
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('Your article has been saved.'));
-                return $this->redirect(['action' => 'index']);
+
+                return $this->redirect(['action' => 'view/'.$article->id]);
             }
             $this->Flash->error(__('Unable to add your article.'));
         }
@@ -98,32 +99,31 @@ class ArticlesController extends AppController
             return $this->redirect(['action' => 'index']);
         }
     }
-    //コメントの削除
-    public function commentDelete($comment_id)
-    {
-        $this->request->allowMethod(['post', 'commentDelete']);
-        $comment = $this->Articles->comments->get($comment_id);
-        if($this->Articles->comments->delete($comment)){
-            $this->Flash->success(__('The comment with id: {0} has been deleted.', h($comment_id)));
-            return $this->redirect(['action' => 'index']);
-        }
-    }
-
-    //コメントの機能の追加
-    public function comment(){
-        $this->loadModel('Comments');
-
-        $comment = $this ->Comments ->newEntity($this ->request ->data);
-        if($this ->request ->is('post')){
-            if($this->Comments->save($comment)) {
-                $this->Flash->success(__('Your comment has been saved.'));
-                //return $this->redirect(['action' => 'index']);
-            }else{
-                $this->Flash->error(__('Unable to add your comment.'));
-            }
-        }
-            return $this ->redirect('/articles/view/' .$this ->request ->data['article_id']);
-    }
+    // //コメントの削除
+    // public function commentDelete($comment_id)
+    // {
+    //     $this->request->allowMethod(['post', 'commentDelete']);
+    //     $comment = $this->Articles->comments->get($comment_id);
+    //     if($this->Articles->comments->delete($comment)){
+    //         $this->Flash->success(__('The comment with id: {0} has been deleted.', h($comment_id)));
+    //         return $this->redirect(['action' => 'view/'.$comment->article_id]);
+    //     }
+    // }
+    //
+    // //コメントの機能の追加
+    // public function comment(){
+    //     $this->loadModel('Comments');
+    //     $comment = $this ->Comments ->newEntity($this ->request ->data);
+    //     if($this ->request ->is('post')){
+    //         if($this->Comments->save($comment)) {
+    //             $this->Flash->success(__('Your comment has been saved.'));
+    //             //return $this->redirect(['action' => 'index']);
+    //         }else{
+    //             $this->Flash->error(__('Unable to add your comment.'));
+    //         }
+    //     }
+    //         return $this ->redirect('/articles/view/' .$this ->request ->data['article_id']);
+    // }
 
     public function isAuthorized($user)
     {

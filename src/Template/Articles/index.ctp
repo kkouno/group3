@@ -13,7 +13,7 @@
 </p>
 <p>
     <?php if($login):?>
-        <?= $this->Html->link("Add Article", ['action' => 'add']) ?>
+        <?= $this->Html->image("add.png", ['url'=>['action' => 'add']]) ?>
     <?php endif?>
 </p>
 <table>
@@ -33,24 +33,25 @@
             <?= $this->Html->link($article->title, ['action' => 'view', $article->id]) ?>
         </td>
         <td>
-            <?= $article->created->format(DATE_RFC850) ?>
+            <?= $article->created->format('Y/m/d H:i:s') ?>
+        </td>
+        <td>
+            <?= "(+".count($article->comments).")"?>
         </td>
 
         <td>
             <!-- ログインしていたら表示 -->
             <?php if($login):?>
+                <?= $this->Html->link($this->Html->image('edit.png'), ['action' => 'edit', $article->id],['escape' => false]) ?>
                 <?=
                     $this->Form->postLink(
-                    'Delete',
+                    $this->Html->image('delete.png'),
                     ['action' => 'delete', $article->id],
-                    ['confirm' => 'Are you sure?'])
+                    ['confirm' => 'Are you sure?','escape' => false]
+                    )
                 ?>
-                <?= $this->Html->link('Edit', ['action' => 'edit', $article->id]) ?>
             <?php endif?>
         </td>
     </tr>
     <?php endforeach; ?>
 </table>
-<?= $this->Form->create() ?>
-<?= $this->Form->button('Return', ['onclick' => 'history.back()', 'type' => 'button']) ?>
-<?= $this->Form->end() ?>
